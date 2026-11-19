@@ -20,3 +20,9 @@ while IFS=, read -r days class start end; do
 
     echo "$class: $start - $end"
 done < "$SCHEDULE"
+
+#Fetch the latest hourly forecast from NWS API
+if ! curl -sf -H "User-Agent: $USER_AGENT" "$URL" -o "$FORECAST"; then
+    echo "Error: could not get the forecast. Check your internet connection."
+    exit 1
+fi
