@@ -29,13 +29,19 @@ get_forecast_data() {
 
 # Make sure the schedule file exists before proceeding
 if [ ! -f "$SCHEDULE" ]; then
-    echo "Error: $SCHEDULE not found."
+    echo "Error: $SCHEDULE not found." >&2
+    exit 1
+fi
+
+# Make sure jq is installed before querying the forecast JSON
+if ! command -v jq >/dev/null 2>&1; then
+    echo "Error: jq is required but not installed. Install it with 'winget install jqlang.jq', 'sudo apt install jq', or 'brew install jq'." >&2
     exit 1
 fi
 
 # Fetch the latest hourly forecast from NWS API
 if ! curl -sf -H "User-Agent: $USER_AGENT" "$URL" -o "$FORECAST"; then
-    echo "Error: could not get the forecast. Check your internet connection."
+    echo "Error: could not get the forecast. Check your internet connection." >&2
     exit 1
 fi
 
@@ -49,6 +55,12 @@ while IFS=, read -r days class start end || [ -n "$days" ]; do
     # Strip carriage returns and skip empty lines
     end=${end%$'\r'}
     [ -z "$class" ] && continue
+
+    # Skip malformed lines missing a start or end time
+    if [ -z "$start" ] || [ -z "$end" ]; then
+        echo "Warning: skipping $class due to missing start or end time." >&2
+        continue
+    fi
 
     # Build timestamp keys for start and end walk times
     start_key="${today}T$(format_hour "$start")"
