@@ -7,6 +7,10 @@ FORECAST="forecast.json"
 URL="https://api.weather.gov/gridpoints/IND/30,97/forecast/hourly"
 USER_AGENT="jacketcheck (github.com/yuvraj-del)"
 
+JACKET_TEMP=55
+RAIN_CHANCE=40
+HOT_TEMP=75
+
 # Helper function: turn a time like "9:30" into a 2-digit hour key like "09"
 format_hour() {
     local h=${1%%:*}
@@ -34,6 +38,9 @@ if ! curl -sf -H "User-Agent: $USER_AGENT" "$URL" -o "$FORECAST"; then
     echo "Error: could not get the forecast. Check your internet connection."
     exit 1
 fi
+
+# Print table header with widened condition column (40 chars)
+printf "%-12s %-6s %-6s %-6s %-6s %-40s %s\n" "CLASS" "START" "END" "TEMP" "RAIN" "CONDITIONS" "BRING"
 
 # Determine today's date
 today=$(date +%Y-%m-%d)
@@ -83,6 +90,21 @@ while IFS=, read -r days class start end || [ -n "$days" ]; do
         rain_cond="$end_cond (walk back)"
     fi
 
-    echo "$class $start-$end ${temp}F ${rain}% $temp_cond / $rain_cond"
+    # Align condition with rain if precipitation threshold is met, otherwise use temp condition
+    if [ "$rain" -ge "$RAIN_CHANCE" ]; then
+        cond="$rain_cond"
+    else
+        cond="$temp_cond"
+    fi
+
+    # Evaluate clothing recommendations based on configurable weather thresholds
+    bring=""
+    [ "$temp" -lt "$JACKET_TEMP" ] && bring+="jacket "
+    [ "$rain" -ge "$RAIN_CHANCE" ] && bring+="umbrella "
+    [ "$temp" -gt "$HOT_TEMP" ] && bring+="light clothes "
+    [ -z "$bring" ] && bring="nothing extra"
+
+    # Print formatted row for today's class
+    printf "%-12s %-6s %-6s %-6s %-6s %-40s %s\n" "$class" "$start" "$end" "${temp}F" "${rain}%" "$cond" "$bring"
 
 done < "$SCHEDULE"
