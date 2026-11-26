@@ -48,9 +48,12 @@ fi
 # Print table header with widened condition column (40 chars)
 printf "%-12s %-6s %-6s %-6s %-6s %-40s %s\n" "CLASS" "START" "END" "TEMP" "RAIN" "CONDITIONS" "BRING"
 
-# Determine today's date
+# Determine today's date and corresponding schedule day letter
 today=$(date +%Y-%m-%d)
+day_letters=(x M T W R F S U)
+today_letter=${day_letters[$(date +%u)]}
 
+count=0
 while IFS=, read -r days class start end || [ -n "$days" ]; do
     # Strip carriage returns and skip empty lines
     end=${end%$'\r'}
@@ -61,6 +64,10 @@ while IFS=, read -r days class start end || [ -n "$days" ]; do
         echo "Warning: skipping $class due to missing start or end time." >&2
         continue
     fi
+
+    # Skip classes that do not meet today
+    [[ "$days" != *"$today_letter"* ]] && continue
+    count=$((count + 1))
 
     # Build timestamp keys for start and end walk times
     start_key="${today}T$(format_hour "$start")"
@@ -120,3 +127,8 @@ while IFS=, read -r days class start end || [ -n "$days" ]; do
     printf "%-12s %-6s %-6s %-6s %-6s %-40s %s\n" "$class" "$start" "$end" "${temp}F" "${rain}%" "$cond" "$bring"
 
 done < "$SCHEDULE"
+
+# Output message if no classes match today
+if [ "$count" -eq 0 ]; then
+    echo "No classes today."
+fi

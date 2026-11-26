@@ -50,7 +50,7 @@ CS18000      16:30  17:20  41F    18%    Slight Chance Light Rain (walk back)   
 - [x] Check weather at class start and end
 - [x] Recommend what to bring
 - [x] Error handling (missing file, no jq, no internet, bad lines)
-- [ ] MWF vs. TTh schedules
+- [x] Show only classes that meet today
 - [ ] Morning cron job
 - [ ] `--tomorrow` flag
 
