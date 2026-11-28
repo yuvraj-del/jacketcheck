@@ -24,7 +24,9 @@ Weather at Purdue changes a lot during the day. This tool checks the forecast fo
 
 ## Setup
 
-1. Install jq: `winget install jqlang.jq` (Windows), `brew install jq` (macOS), or `sudo apt install jq` (Linux)
+**Platform:** Windows only, run in Git Bash. 
+
+1. Install jq: `winget install jqlang.jq`
 2. Run:
    ```bash
    git clone https://github.com/yuvraj-del/jacketcheck
