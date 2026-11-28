@@ -56,4 +56,4 @@ CS18000      16:30  17:20  41F    18%    Slight Chance Light Rain (walk back)   
 
 ## Demo
 
-[Video walkthrough](YOUR_VIDEO_LINK_HERE)
+[Video walkthrough](https://youtu.be/4VNcy_VWJKs)
